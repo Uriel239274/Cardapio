@@ -1,0 +1,449 @@
+{
+  "name": "Drive File Processor - Menu Data Extraction",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 5
+            }
+          ]
+        }
+      },
+      "id": "8b5e5f6e-3c5a-4c1a-9d3f-1e2d3c4b5a6b",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        180,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "operation": "list",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "MyDrive"
+        },
+        "folderId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "{{ $vars.DRIVE_FOLDER_ID }}"
+        },
+        "queryFilters": {
+          "name": {
+            "operation": "contains",
+            "value": ""
+          },
+          "modifiedTime": {
+            "operation": "greaterThan",
+            "value": "={{ $now.minus({ minutes: 5 }).toISO() }}"
+          }
+        }
+      },
+      "id": "1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d",
+      "name": "Google Drive - List Files",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        400,
+        300
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "{{ $vars.GOOGLE_DRIVE_CREDENTIALS_ID }}",
+          "name": "Google Drive OAuth2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "condition1",
+              "leftValue": "={{ $json.name }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "regex",
+                "rightType": "any"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "2b3c4d5e-6f7a-8b9c-0d1e-2f3a4b5c6d7e",
+      "name": "IF - File Type Check",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        620,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.id }}"
+        }
+      },
+      "id": "3c4d5e6f-7a8b-9c0d-1e2f-3a4b5c6d7e8f",
+      "name": "Google Drive - Download File",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        840,
+        200
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "{{ $vars.GOOGLE_DRIVE_CREDENTIALS_ID }}",
+          "name": "Google Drive OAuth2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "condition1",
+              "leftValue": "={{ $json.name.toLowerCase() }}",
+              "rightValue": ".csv",
+              "operator": {
+                "type": "string",
+                "operation": "endsWith"
+              }
+            },
+            {
+              "id": "condition2",
+              "leftValue": "={{ $json.name.toLowerCase() }}",
+              "rightValue": ".xlsx",
+              "operator": {
+                "type": "string",
+                "operation": "endsWith"
+              }
+            },
+            {
+              "id": "condition3",
+              "leftValue": "={{ $json.name.toLowerCase() }}",
+              "rightValue": ".xls",
+              "operator": {
+                "type": "string",
+                "operation": "endsWith"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "id": "4d5e6f7a-8b9c-0d1e-2f3a-4b5c6d7e8f9a",
+      "name": "IF - Spreadsheet File",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1060,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "fromFile",
+        "fileFormat": "autodetect",
+        "options": {
+          "headerRow": true
+        }
+      },
+      "id": "5e6f7a8b-9c0d-1e2f-3a4b-5c6d7e8f9a0b",
+      "name": "Spreadsheet File - Parse",
+      "type": "n8n-nodes-base.spreadsheetFile",
+      "typeVersion": 2,
+      "position": [
+        1280,
+        120
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "condition1",
+              "leftValue": "={{ $json.name.toLowerCase() }}",
+              "rightValue": ".pdf",
+              "operator": {
+                "type": "string",
+                "operation": "endsWith"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "6f7a8b9c-0d1e-2f3a-4b5c-6d7e8f9a0b1c",
+      "name": "IF - PDF File",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1060,
+        280
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "extractText"
+      },
+      "id": "7a8b9c0d-1e2f-3a4b-5c6d-7e8f9a0b1c2d",
+      "name": "PDF - Extract Text",
+      "type": "n8n-nodes-base.pdf",
+      "typeVersion": 1,
+      "position": [
+        1280,
+        280
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Template para organizar dados extraídos do menu\nconst items = [];\nconst originalData = $input.all();\n\n// Função para limpar e normalizar texto\nfunction cleanText(text) {\n  if (!text) return '';\n  return text.toString().trim().replace(/\\s+/g, ' ');\n}\n\n// Função para extrair preço de um texto\nfunction extractPrice(text) {\n  if (!text) return null;\n  const priceMatch = text.toString().match(/R?\\$?\\s*(\\d+[,.]?\\d*)/i);\n  return priceMatch ? parseFloat(priceMatch[1].replace(',', '.')) : null;\n}\n\n// Processa cada item dos dados extraídos\nfor (const item of originalData) {\n  let processedItems = [];\n  \n  if (item.json && Array.isArray(item.json)) {\n    // Se for um array de dados (planilha)\n    processedItems = item.json.map(row => ({\n      id: row.id || `item_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,\n      nome: cleanText(row.nome || row.name || row.item || row.produto),\n      descricao: cleanText(row.descricao || row.description || row.desc || ''),\n      preco: extractPrice(row.preco || row.price || row.valor || row.cost),\n      categoria: cleanText(row.categoria || row.category || row.tipo || 'Outros'),\n      disponivel: row.disponivel !== false && row.available !== false,\n      imagem: row.imagem || row.image || row.foto || '',\n      ingredientes: cleanText(row.ingredientes || row.ingredients || ''),\n      observacoes: cleanText(row.observacoes || row.notes || row.obs || ''),\n      data_atualizacao: new Date().toISOString(),\n      fonte: 'Google Drive - Planilha',\n      arquivo_origem: item.binary?.data?.fileName || 'arquivo_nao_identificado'\n    }));\n  } else if (item.json && typeof item.json === 'object') {\n    // Se for um objeto único ou texto extraído de PDF\n    if (item.json.extractedText) {\n      // Processamento de texto de PDF\n      const text = item.json.extractedText;\n      const lines = text.split('\\n').filter(line => line.trim());\n      \n      for (let i = 0; i < lines.length; i++) {\n        const line = lines[i].trim();\n        const price = extractPrice(line);\n        \n        if (price) {\n          // Linha anterior pode conter o nome do item\n          const nome = lines[i-1] ? cleanText(lines[i-1]) : `Item ${i+1}`;\n          // Próxima linha pode conter descrição\n          const descricao = lines[i+1] && !extractPrice(lines[i+1]) ? cleanText(lines[i+1]) : '';\n          \n          processedItems.push({\n            id: `pdf_item_${Date.now()}_${i}`,\n            nome: nome,\n            descricao: descricao,\n            preco: price,\n            categoria: 'Extraído PDF',\n            disponivel: true,\n            imagem: '',\n            ingredientes: '',\n            observacoes: `Extraído automaticamente do PDF: ${item.binary?.data?.fileName || 'arquivo_pdf'}`,\n            data_atualizacao: new Date().toISOString(),\n            fonte: 'Google Drive - PDF',\n            arquivo_origem: item.binary?.data?.fileName || 'arquivo_pdf_nao_identificado'\n          });\n        }\n      }\n    } else {\n      // Processamento de objeto direto\n      processedItems.push({\n        id: item.json.id || `item_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,\n        nome: cleanText(item.json.nome || item.json.name || 'Item sem nome'),\n        descricao: cleanText(item.json.descricao || item.json.description || ''),\n        preco: extractPrice(item.json.preco || item.json.price),\n        categoria: cleanText(item.json.categoria || item.json.category || 'Outros'),\n        disponivel: item.json.disponivel !== false,\n        imagem: item.json.imagem || item.json.image || '',\n        ingredientes: cleanText(item.json.ingredientes || item.json.ingredients || ''),\n        observacoes: cleanText(item.json.observacoes || item.json.notes || ''),\n        data_atualizacao: new Date().toISOString(),\n        fonte: 'Google Drive - Arquivo Processado',\n        arquivo_origem: item.binary?.data?.fileName || 'arquivo_nao_identificado'\n      });\n    }\n  }\n  \n  items.push(...processedItems);\n}\n\n// Template final organizado\nconst organizedData = {\n  metadata: {\n    total_items: items.length,\n    data_processamento: new Date().toISOString(),\n    versao_template: '1.0.0',\n    origem: 'Google Drive Automation'\n  },\n  categorias: [...new Set(items.map(item => item.categoria))],\n  items: items,\n  resumo_por_categoria: items.reduce((acc, item) => {\n    const categoria = item.categoria;\n    if (!acc[categoria]) {\n      acc[categoria] = {\n        total_items: 0,\n        preco_medio: 0,\n        items: []\n      };\n    }\n    acc[categoria].total_items++;\n    acc[categoria].items.push(item.id);\n    if (item.preco) {\n      const currentAvg = acc[categoria].preco_medio;\n      const currentCount = acc[categoria].total_items;\n      acc[categoria].preco_medio = ((currentAvg * (currentCount - 1)) + item.preco) / currentCount;\n    }\n    return acc;\n  }, {})\n};\n\nreturn [{ json: organizedData }];"
+      },
+      "id": "8b9c0d1e-2f3a-4b5c-6d7e-8f9a0b1c2d3e",
+      "name": "Code - Organize Data Template",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1500,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "menu-update",
+        "options": {}
+      },
+      "id": "9c0d1e2f-3a4b-5c6d-7e8f-9a0b1c2d3e4f",
+      "name": "Webhook - Menu Update Endpoint",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        1720,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{ $vars.MENU_API_ENDPOINT || 'http://localhost:3000/api/menu/update' }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer {{ $vars.API_TOKEN }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ $json }}"
+      },
+      "id": "0d1e2f3a-4b5c-6d7e-8f9a-0b1c2d3e4f5a",
+      "name": "HTTP Request - Send to Menu API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1940,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "name": "={{ 'menu_data_' + $now.toFormat('yyyy-MM-dd_HH-mm-ss') + '.json' }}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "MyDrive"
+        },
+        "folderId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "{{ $vars.OUTPUT_FOLDER_ID }}"
+        },
+        "options": {
+          "uploadAsString": true,
+          "fileContent": "={{ JSON.stringify($json, null, 2) }}"
+        }
+      },
+      "id": "1e2f3a4b-5c6d-7e8f-9a0b-1c2d3e4f5a6b",
+      "name": "Google Drive - Save Processed Data",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1940,
+        320
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "{{ $vars.GOOGLE_DRIVE_CREDENTIALS_ID }}",
+          "name": "Google Drive OAuth2"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Google Drive - List Files",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Drive - List Files": {
+      "main": [
+        [
+          {
+            "node": "IF - File Type Check",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF - File Type Check": {
+      "main": [
+        [
+          {
+            "node": "Google Drive - Download File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Drive - Download File": {
+      "main": [
+        [
+          {
+            "node": "IF - Spreadsheet File",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "IF - PDF File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF - Spreadsheet File": {
+      "main": [
+        [
+          {
+            "node": "Spreadsheet File - Parse",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Spreadsheet File - Parse": {
+      "main": [
+        [
+          {
+            "node": "Code - Organize Data Template",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF - PDF File": {
+      "main": [
+        [
+          {
+            "node": "PDF - Extract Text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PDF - Extract Text": {
+      "main": [
+        [
+          {
+            "node": "Code - Organize Data Template",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Organize Data Template": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request - Send to Menu API",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Google Drive - Save Processed Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "12345678-1234-1234-1234-123456789abc",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "01234567890abcdef01234567890abcdef01234567890abcdef01234567890abcdef"
+  },
+  "id": "drive-file-processor-workflow",
+  "tags": []
+}

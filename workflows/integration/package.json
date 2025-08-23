@@ -1,0 +1,21 @@
+{
+  "name": "cardapio-menu-api",
+  "version": "1.0.0",
+  "description": "API endpoint para integração com workflow n8n - processamento de dados do menu",
+  "main": "menu-api-endpoint.js",
+  "scripts": {
+    "start": "node menu-api-endpoint.js",
+    "dev": "nodemon menu-api-endpoint.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": ["n8n", "menu", "api", "webhook", "cardapio"],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}

@@ -1,0 +1,12 @@
+nome,descricao,preco,categoria,disponivel,ingredientes,observacoes
+Hambúrguer Artesanal,Hambúrguer 180g com queijo cheddar e molho especial,25.90,Lanches,TRUE,Carne bovina 180g queijo cheddar alface tomate cebola molho especial,Ponto da carne a escolher
+X-Burguer,Hambúrguer duplo com bacon e queijo,32.50,Lanches,TRUE,Duas carnes 120g bacon queijo prato alface tomate,Sem cebola
+Sanduíche de Frango,Peito de frango grelhado com maionese,18.90,Lanches,TRUE,Peito de frango 150g alface tomate maionese,Pode ser feito na chapa
+Batata Frita,Porção individual de batata frita,12.00,Acompanhamentos,TRUE,Batata óleo sal,Serve 1 pessoa
+Batata Frita Grande,Porção família de batata frita,22.00,Acompanhamentos,TRUE,Batata óleo sal,Serve 3-4 pessoas
+Refrigerante Lata,Coca-Cola Pepsi Guaraná Fanta,5.50,Bebidas,TRUE,Refrigerante 350ml,Gelado
+Suco Natural,Suco de frutas frescas,8.00,Bebidas,TRUE,Frutas água açúcar,Laranja limão ou maracujá
+Cerveja Pilsen,Cerveja nacional gelada,6.00,Bebidas Alcoólicas,TRUE,Malte lúpulo água,Somente maior de idade
+Cerveja Artesanal IPA,Cerveja artesanal amarga,15.00,Bebidas Alcoólicas,TRUE,Malte especial lúpulo água,Teor alcoólico 6%
+Torta de Chocolate,Fatia de torta de chocolate com calda,12.90,Sobremesas,TRUE,Chocolate farinha açúcar ovos,Pode aquecer
+Pudim de Leite,Pudim caseiro com calda de caramelo,8.50,Sobremesas,TRUE,Leite condensado ovos açúcar,Receita da casa
